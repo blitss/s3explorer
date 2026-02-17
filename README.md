@@ -1,16 +1,10 @@
-<h1>   S3 Explorer
-  <img align="right" src="https://img.shields.io/github/stars/subratomandal/s3explorer" />
-</h1>
-
+# S3 Explorer
 
 A secure, self-hosted web-based file manager for S3-compatible storage buckets.
 
 [![Deploy on Railway](https://img.shields.io/badge/Deploy-Railway-0B0D0E?style=for-the-badge&logo=railway)](https://railway.com/deploy/s3-explorer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE.md)
-
-
-
-
+ <img src="https://img.shields.io/github/stars/subratomandal/s3explorer?style=for-the-badge" />
 
 ## Overview
 
