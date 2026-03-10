@@ -7,12 +7,43 @@ import session from 'express-session';
 const DATA_DIR = process.env.DATA_DIR || '/data';
 const DB_PATH = path.join(DATA_DIR, 's3explorer.db');
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// Wait for data directory to be available (Railway volume may not be ready immediately)
+function waitForDataDir(maxRetries = 10, delayMs = 1000): void {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.accessSync(DATA_DIR, fs.constants.W_OK);
+      return;
+    } catch {
+      console.log(`Waiting for ${DATA_DIR} to be ready... (${i + 1}/${maxRetries})`);
+      const start = Date.now();
+      while (Date.now() - start < delayMs) { /* busy wait */ }
+    }
+  }
+  console.error(`DATA_DIR "${DATA_DIR}" is not writable after ${maxRetries} retries. Check volume mount.`);
+  process.exit(1);
 }
 
-const db: DatabaseType = new Database(DB_PATH);
+waitForDataDir();
+
+function openDatabase(maxRetries = 5, delayMs = 1000): DatabaseType {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      console.log(`Opening database at ${DB_PATH} (attempt ${i + 1})`);
+      return new Database(DB_PATH);
+    } catch (err) {
+      console.log(`Database open failed: ${err}. Retrying...`);
+      const start = Date.now();
+      while (Date.now() - start < delayMs) { /* busy wait */ }
+    }
+  }
+  console.error(`Failed to open database after ${maxRetries} retries.`);
+  process.exit(1);
+}
+
+const db: DatabaseType = openDatabase();
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
