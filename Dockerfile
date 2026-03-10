@@ -22,8 +22,8 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 
-# Install native deps for better-sqlite3
-RUN apk add --no-cache python3 make g++
+# Install native deps for better-sqlite3 and su-exec for runtime user switch
+RUN apk add --no-cache python3 make g++ su-exec
 
 # Copy server build and dependencies
 COPY --from=server-builder /app/server/dist ./dist
@@ -36,18 +36,11 @@ RUN npm rebuild better-sqlite3
 # Copy client build to be served by the server
 COPY --from=client-builder /app/client/dist ./public
 
-# Create data directory for SQLite and encryption key
-RUN mkdir -p /data && chown -R node:node /data
-
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DATA_DIR=/data
 
-# Run as non-root user
-USER node
-
 EXPOSE 3000
 
-
-
-CMD ["node", "dist/index.js"]
+# Ensure /data is writable (Railway volume mounts as root), then drop to node user
+CMD ["sh", "-c", "mkdir -p /data && chown -R node:node /data && exec su-exec node node dist/index.js"]
