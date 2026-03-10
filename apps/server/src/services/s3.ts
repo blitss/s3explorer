@@ -42,6 +42,8 @@ function getS3Client(configOverride?: S3ConnectionConfig): S3Client {
         secretAccessKey: configOverride.secretKey,
       },
       forcePathStyle: configOverride.forcePathStyle ?? true,
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   }
 
@@ -64,6 +66,8 @@ function getS3Client(configOverride?: S3ConnectionConfig): S3Client {
       secretAccessKey: secretKey,
     },
     forcePathStyle: !!active.force_path_style,
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   });
 }
 

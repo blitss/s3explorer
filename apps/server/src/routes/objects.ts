@@ -178,8 +178,8 @@ router.post('/:bucket/upload', upload.array('files'), async (req: Request, res: 
         continue; // Skip invalid keys
       }
 
-      const fileStream = fs.createReadStream(file.path);
-      await s3.uploadObjectStream(bucket, key, fileStream, file.mimetype, file.size);
+      const fileBuffer = await fs.promises.readFile(file.path);
+      await s3.uploadObject(bucket, key, fileBuffer, file.mimetype);
       results.push({ key, size: file.size });
     }
 

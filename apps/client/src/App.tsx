@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Folder, Database, Download, Edit3, Trash2 } from 'lucide-react';
+import { Folder, Database, Download, Edit3, Trash2, ExternalLink } from 'lucide-react';
 import * as api from './api';
 import type { Bucket, S3Object, ToastState, ContextMenuState } from './types';
 import { getFileName } from './utils/fileUtils';
@@ -704,6 +704,17 @@ export default function App() {
               icon={Download}
               label="Download"
               onClick={() => { handleDownload(contextMenu.object); setContextMenu(null); }}
+            />
+          )}
+          {!contextMenu.object.isFolder && (
+            <ContextMenuItem
+              icon={ExternalLink}
+              label="Public URL"
+              onClick={() => {
+                const url = `https://s-dt2.cloud.edgecore.ru/${selectedBucket}/${contextMenu.object.key}`;
+                window.open(url, '_blank');
+                setContextMenu(null);
+              }}
             />
           )}
           <ContextMenuItem
